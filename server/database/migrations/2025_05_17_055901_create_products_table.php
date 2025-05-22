@@ -13,10 +13,12 @@ return new class extends Migration
     {
         Schema::create('products', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
+            $table->string('name'); // e.g., "Floral Summer Dress"
             $table->string('sku')->unique();
             $table->decimal('price', 10, 2);
             $table->integer('stock')->default(0);
+            $table->json('variants')->nullable(); // Stores { sizes: [], colors: [] }
+            $table->string('category')->nullable(); // e.g., "Dresses", "Tops"
             $table->timestamps();
         });
     }

@@ -1,14 +1,21 @@
-import React from 'react'
-import ProductForm from './features/products/ProductForm'
-import ProductList from './features/products/ProductList'
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import Dashboard from "./pages/Dashboard";
+import Reports from "./pages/Reports";
+import POSForm from "./features/transactions/POSForm"; // ✅ Add this import
 
-const App = () => {
+function App() {
   return (
-    <div className="p-6">
-      <ProductForm />
-      <hr className="my-4"/>
-       <ProductList />
-    </div>
+    <Router>
+      <Navbar />
+      <div className="p-6">
+        <Routes>
+          <Route path="/" element={<Dashboard />} />
+          <Route path="/reports" element={<Reports />} />
+          <Route path="/transactions" element={<POSForm />} /> {/* ✅ Add this */}
+        </Routes>
+      </div>
+    </Router>
   );
 }
 

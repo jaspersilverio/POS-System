@@ -6,5 +6,15 @@ use Illuminate\Database\Eloquent\Model;
 
 class Transaction extends Model
 {
-    //
+    protected $fillable = [
+        'customer_name',
+        'items',
+        'subtotal',
+        'discount',
+        'total'
+    ];
+
+    protected $casts = [
+        'items' => 'array'
+    ];
 }
