@@ -22,7 +22,7 @@ const Navbar = () => {
         {/* Logo */}
         <Link to="/" className="flex items-center space-x-2">
           <span className="text-2xl">🛒</span>
-          <span className="font-bold text-xl">Syntax Error</span>
+          <span className="font-bold text-xl">DriftShift</span>
         </Link>
 
         {/* Navigation Links */}

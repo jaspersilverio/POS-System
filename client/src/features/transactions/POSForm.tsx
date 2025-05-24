@@ -21,8 +21,6 @@ export default function POSForm() {
   const [isProcessing, setIsProcessing] = useState(false);
   
 
-  
-
   // Calculate totals
   const subtotal = cartItems.reduce((sum, item) => sum + (item.price * item.quantity), 0);
   const total = subtotal - discount;
