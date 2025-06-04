@@ -1,6 +1,6 @@
 // src/App.tsx
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import ProtectedRoute from './routes/ProtectedRoute';
+import ProtectedRoute from './components/ProtectedRoute';
 import Login from './features/auth/Login';
 import Dashboard from './pages/Dashboard';
 import POS from './pages/POS';
@@ -22,9 +22,9 @@ function App() {
         </Route>
 
         {/* Admin-only Routes */}
-        <Route element={<ProtectedRoute roles={['admin']} />}>
+        {/* <Route element={<ProtectedRoute roles={['admin']} />}>
           <Route path="/admin" element={<AdminDashboard />} />
-        </Route>
+        </Route> */}
 
         {/* Manager+ Routes */}
         <Route element={<ProtectedRoute roles={['manager', 'admin']} />}>
