@@ -1,44 +1,44 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Models;
 
-use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Foundation\Auth\User as Authenticatable;
+use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class AuthController extends Controller
+class User extends Authenticatable
 {
+    use HasApiTokens, HasFactory, Notifiable;
 
-    public function register(Request $request)
+    protected $fillable = [
+        'first_name',
+        'middle_name',
+        'last_name',
+        'suffix_name',
+        'age',
+        'birth_date',
+        'address',
+        'contact_number',
+        'email',
+        'password',
+        'role'
+    ];
+
+
+    protected $hidden = [
+        'password',
+        'remember_token',
+    ];
+
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'birth_date' => 'date',
+    ];
+
+    public function transactions()
     {
-        $validated = $request->validate([
-            'name' => 'required',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:8|confirmed',
-            'role' => 'required|in:cashier,manager,admin'
-        ]);
-
-        $validated['password'] = Hash::make($validated['password']);
-        $user = User::create($validated);
-
-        return response()->json([
-            'token' => $user->createToken('API')->plainTextToken
-        ]);
-    }
-
-    public function login(Request $request)
-    {
-        if (!Auth::attempt($request->only('email', 'password'))) {
-            return response()->json(['message' => 'Invalid credentials'], 401);
-        }
-
-        $user = Auth::user();
-
-        return response()->json([
-            'token' => $user->createToken('API')->plainTextToken,
-            'role' => $user->role
-        ]);
+        return $this->hasMany(Transaction::class);
     }
 }

@@ -1,5 +1,20 @@
-import axios from "axios";
+// src/services/api.ts
+import axios from 'axios';
 
-export const api = axios.create({
-  baseURL: "http://localhost:8000/api", // depends on your backend setup
+const api = axios.create({
+  baseURL: 'http://localhost:8000/api', // Laravel backend
+  headers: {
+    'Content-Type': 'application/json',
+  },
 });
+
+// Add auth token to requests
+api.interceptors.request.use(config => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+});
+
+export default api;

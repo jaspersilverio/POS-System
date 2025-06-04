@@ -7,33 +7,52 @@ use Illuminate\Http\Request;
 
 class ProductController extends Controller
 {
-
     public function index()
     {
-        return Product::all();
+        return Product::with('category')->get();
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'name' => 'required|string',
-            'sku' => 'required|string|unique:products',
-            'price' => 'required|numeric',
-            'stock' => 'required|integer'
+            'name' => 'required|string|max:255',
+            'description' => 'nullable|string',
+            'price' => 'required|numeric|min:0',
+            'stock' => 'required|integer|min:0',
+            'category_id' => 'required|exists:categories,id',
+            'barcode' => 'nullable|string|unique:products,barcode'
         ]);
 
-        return Product::create($validated);
+        $product = Product::create($validated);
+
+        return response()->json($product, 201);
     }
 
-    public function show($id)
+    public function show(Product $product)
     {
-        return Product::findOrfail($id);
+        return $product->load('category');
     }
 
-    public function update(Request $request, $id)
+    public function update(Request $request, Product $product)
     {
-        $product = Product::findOrfail($id);
+        $validated = $request->validate([
+            'name' => 'sometimes|string|max:255',
+            'description' => 'nullable|string',
+            'price' => 'sometimes|numeric|min:0',
+            'stock' => 'sometimes|integer|min:0',
+            'category_id' => 'sometimes|exists:categories,id',
+            'barcode' => 'nullable|string|unique:products,barcode,' . $product->id
+        ]);
+
+        $product->update($validated);
+
+        return response()->json($product);
+    }
+
+    public function destroy(Product $product)
+    {
         $product->delete();
-        return response()->json(['message' => 'Deleted']);
+
+        return response()->json(null, 204);
     }
 }
