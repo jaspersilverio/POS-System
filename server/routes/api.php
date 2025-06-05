@@ -10,23 +10,18 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
+// CSRF route for SPA
+Route::get('/csrf-token', function () {
+    return response()->json(['csrf_token' => csrf_token()]);
+});
+
 // Public routes
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 
-// Protected routes
+// Protected
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/logout', [AuthController::class, 'logout']);
-
-    // Products
     Route::apiResource('products', ProductController::class);
-
-    // Transactions
     Route::apiResource('transactions', TransactionController::class);
-
-    // Admin only routes
-    // Route::middleware('role:admin')->group(function () {
-    //     Route::apiResource('users', UserController::class);
-    //     Route::apiResource('categories', CategoryController::class);
-    // });
 });

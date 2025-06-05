@@ -12,19 +12,26 @@ export default function Login() {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
     try {
+      await fetch('http://localhost:8000/sanctum/csrf-cookie', {
+        credentials: 'include',
+      });
+  
       const response = await fetch('http://localhost:8000/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ email, password }),
       });
-
-      if (!response.ok) throw new Error('Invalid credentials');
-      
-      const data = await response.json();
-      login(data.token, data.user.role);
-      navigate(data.user.role === 'admin' ? '/admin' : '/pos');
+  
+      if (!response.ok) throw new Error('Login failed.');
+  
+      const userRes = await fetch('http://localhost:8000/api/user', {
+        credentials: 'include',
+      });
+      const userData = await userRes.json();
+      login(data.token, data.role); // update context
+      navigate(userData.role === 'admin' ? '/admin' : '/pos');
     } catch (err) {
       setError('Login failed. Please check your credentials.');
     }

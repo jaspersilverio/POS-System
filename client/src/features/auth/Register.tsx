@@ -15,17 +15,26 @@ export default function Register() {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      await fetch('http://localhost:8000/sanctum/csrf-cookie', {
+        credentials: 'include',
+      });
+  
       const response = await fetch('http://localhost:8000/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ name, email, password, role }),
       });
-
+  
       if (!response.ok) throw new Error(await response.text());
-      
-      const data = await response.json();
-      login(data.token, data.user.role);
-      navigate('/');
+  
+      // Login automatically
+      const userRes = await fetch('http://localhost:8000/api/user', {
+        credentials: 'include',
+      });
+      const userData = await userRes.json();
+      login(data.token, data.user.role); // update context
+      navigate(userData.role === 'admin' ? '/admin' : '/pos');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed');
     }
