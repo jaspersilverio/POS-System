@@ -38,10 +38,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setError(null);
     
     try {
-      // Replace with your actual API call
-      const response = await fetch('/api/auth/login', {
+      // Get CSRF token first
+      await fetch('http://localhost:8000/sanctum/csrf-cookie', {
+        credentials: 'include',
+      });
+
+      // Login request
+      const response = await fetch('http://localhost:8000/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ email, password }),
       });
 
@@ -51,12 +57,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       const data = await response.json();
       
+      // Get user data
+      const userResponse = await fetch('http://localhost:8000/api/user', {
+        credentials: 'include',
+      });
+      
+      if (!userResponse.ok) {
+        throw new Error('Failed to get user data');
+      }
+
+      const userData = await userResponse.json();
+      
       localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.user));
+      localStorage.setItem('user', JSON.stringify(userData));
       
       setToken(data.token);
-      setUser(data.user);
-      navigate(data.user.role === 'admin' ? '/dashboard' : '/pos');
+      setUser(userData);
+      navigate(userData.role === 'admin' ? '/admin' : '/pos');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed');
       throw err;
@@ -65,12 +82,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
-    setToken(null);
-    setUser(null);
-    navigate('/login');
+  const logout = async () => {
+    try {
+      await fetch('http://localhost:8000/api/logout', {
+        method: 'POST',
+        credentials: 'include',
+      });
+    } catch (err) {
+      console.error('Logout failed:', err);
+    } finally {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+      setToken(null);
+      setUser(null);
+      navigate('/login');
+    }
   };
 
   return (

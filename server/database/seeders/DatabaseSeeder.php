@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 // use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class DatabaseSeeder extends Seeder
 {
@@ -24,8 +25,21 @@ class DatabaseSeeder extends Seeder
             // Add other required fields
         ]);
 
+        User::create([
+            'first_name' => 'Admin',
+            'last_name' => 'User',
+            'email' => 'admin@dripline.com',
+            'password' => Hash::make('Admin123!'),
+            'role' => 'admin',
+            'age' => 25,
+            'birth_date' => '1999-01-01',
+            'address' => 'System Address',
+            'contact_number' => '09123456789'
+        ]);
+
         $this->call([
-            ProductSeeder::class // Add this line
+            AdminUserSeeder::class,
+            // ProductSeeder::class, // if you want to seed products
         ]);
     }
 }

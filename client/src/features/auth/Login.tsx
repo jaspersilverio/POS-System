@@ -26,11 +26,14 @@ export default function Login() {
   
       if (!response.ok) throw new Error('Login failed.');
   
+      const data = await response.json();
+      
       const userRes = await fetch('http://localhost:8000/api/user', {
         credentials: 'include',
       });
       const userData = await userRes.json();
-      login(data.token, data.role); // update context
+      
+      login(data.token, userData.role); // update context
       navigate(userData.role === 'admin' ? '/admin' : '/pos');
     } catch (err) {
       setError('Login failed. Please check your credentials.');

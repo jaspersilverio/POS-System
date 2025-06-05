@@ -4,10 +4,15 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthProvider';
 
 export default function Register() {
-  const [name, setName] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState('cashier');
+  const [age, setAge] = useState('');
+  const [birthDate, setBirthDate] = useState('');
+  const [address, setAddress] = useState('');
+  const [contactNumber, setContactNumber] = useState('');
   const [error, setError] = useState('');
   const { login } = useAuth();
   const navigate = useNavigate();
@@ -15,25 +20,54 @@ export default function Register() {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
+      // Get CSRF token
       await fetch('http://localhost:8000/sanctum/csrf-cookie', {
         credentials: 'include',
       });
   
+      // Register
       const response = await fetch('http://localhost:8000/api/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
-        body: JSON.stringify({ name, email, password, role }),
+        body: JSON.stringify({ 
+          first_name: firstName,
+          last_name: lastName,
+          email, 
+          password, 
+          role,
+          age: parseInt(age),
+          birth_date: birthDate,
+          address,
+          contact_number: contactNumber
+        }),
       });
   
-      if (!response.ok) throw new Error(await response.text());
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Registration failed');
+      }
+
+      const userData = await response.json();
   
       // Login automatically
-      const userRes = await fetch('http://localhost:8000/api/user', {
+      const loginResponse = await fetch('http://localhost:8000/api/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
+        body: JSON.stringify({ email, password }),
       });
-      const userData = await userRes.json();
-      login(data.token, data.user.role); // update context
+
+      if (!loginResponse.ok) {
+        throw new Error('Auto-login failed after registration');
+      }
+
+      const loginData = await loginResponse.json();
+      
+      // Update auth context
+      login(loginData.token, userData.role);
+      
+      // Navigate based on role
       navigate(userData.role === 'admin' ? '/admin' : '/pos');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed');
@@ -49,9 +83,18 @@ export default function Register() {
         <input
           type="text"
           className="w-full p-2 border rounded"
-          placeholder="Full Name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          placeholder="First Name"
+          value={firstName}
+          onChange={(e) => setFirstName(e.target.value)}
+          required
+        />
+        
+        <input
+          type="text"
+          className="w-full p-2 border rounded"
+          placeholder="Last Name"
+          value={lastName}
+          onChange={(e) => setLastName(e.target.value)}
           required
         />
         
@@ -71,6 +114,42 @@ export default function Register() {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
           minLength={8}
+          required
+        />
+        
+        <input
+          type="number"
+          className="w-full p-2 border rounded"
+          placeholder="Age"
+          value={age}
+          onChange={(e) => setAge(e.target.value)}
+          min="18"
+          required
+        />
+        
+        <input
+          type="date"
+          className="w-full p-2 border rounded"
+          value={birthDate}
+          onChange={(e) => setBirthDate(e.target.value)}
+          required
+        />
+        
+        <input
+          type="text"
+          className="w-full p-2 border rounded"
+          placeholder="Address"
+          value={address}
+          onChange={(e) => setAddress(e.target.value)}
+          required
+        />
+        
+        <input
+          type="tel"
+          className="w-full p-2 border rounded"
+          placeholder="Contact Number"
+          value={contactNumber}
+          onChange={(e) => setContactNumber(e.target.value)}
           required
         />
         
