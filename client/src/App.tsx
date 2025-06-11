@@ -1,49 +1,124 @@
-import { BrowserRouter, Routes, Route } from 'react-router-dom';
-import ProtectedRoute from './components/ProtectedRoute';
-import Login from './features/auth/Login';
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { AuthProvider } from './context/AuthContext';
+import ProtectedRoute from './components/auth/ProtectedRoute';
+
+// Pages
+import Login from './pages/Login';
+import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
-import POS from './pages/POS';
-import Reports from './pages/Reports';
-import Unauthorized from './routes/Unauthorized';
-import MainLayout from './components/layout/MainLayout';
-import AdminDashboard from './features/admin/AdminDashboard';
-import { AuthProvider } from '@/context/AuthProvider';
-import Register from './features/auth/Register';
+import Products from './pages/Products';
+import ProductCreate from './pages/ProductCreate';
+import ProductEdit from './pages/ProductEdit';
+import Inventory from './pages/Inventory';
+import Pos from './pages/Pos';
+import Transactions from './pages/Transactions';
+import FeedbackDashboard from './pages/FeedbackDashboard';
+import Users from './pages/Users';
+import NotFound from './pages/NotFound';
+import './App.css';
 
 function App() {
   return (
-    <BrowserRouter> {/* ✅ Wrap Router at the highest level */}
-      <AuthProvider> {/* ✅ Now AuthProvider is inside Router */}
+    <AuthProvider>
+      <Router>
         <Routes>
-          {/* Public Routes */}
+          {/* Public routes */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="/unauthorized" element={<Unauthorized />} />
-
-          {/* Authenticated Routes */}
-          <Route element={<ProtectedRoute />}>
-            <Route element={<MainLayout />}>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/pos" element={<POS />} />
-            </Route>
-          </Route>
-
-          {/* Manager & Admin Routes */}
-          <Route element={<ProtectedRoute roles={['manager', 'admin']} />}>
-            <Route element={<MainLayout />}>
-              <Route path="/reports" element={<Reports />} />
-            </Route>
-          </Route>
-
+          
+          {/* Protected routes - All authenticated users */}
+          <Route 
+            path="/dashboard" 
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            } 
+          />
+          
+          <Route 
+            path="/products" 
+            element={
+              <ProtectedRoute>
+                <Products />
+              </ProtectedRoute>
+            } 
+          />
+          
+          <Route 
+            path="/pos" 
+            element={
+              <ProtectedRoute>
+                <Pos />
+              </ProtectedRoute>
+            } 
+          />
+          
+          <Route 
+            path="/transactions" 
+            element={
+              <ProtectedRoute>
+                <Transactions />
+              </ProtectedRoute>
+            } 
+          />
+          
+          {/* Manager and Admin Routes */}
+          <Route 
+            path="/products/create" 
+            element={
+              <ProtectedRoute roles={['manager', 'admin']}>
+                <ProductCreate />
+              </ProtectedRoute>
+            } 
+          />
+          
+          <Route 
+            path="/products/:id/edit" 
+            element={
+              <ProtectedRoute roles={['manager', 'admin']}>
+                <ProductEdit />
+              </ProtectedRoute>
+            } 
+          />
+          
+          <Route 
+            path="/inventory" 
+            element={
+              <ProtectedRoute roles={['manager', 'admin']}>
+                <Inventory />
+              </ProtectedRoute>
+            } 
+          />
+          
+          <Route 
+            path="/feedback" 
+            element={
+              <ProtectedRoute roles={['manager', 'admin']}>
+                <FeedbackDashboard />
+              </ProtectedRoute>
+            } 
+          />
+          
           {/* Admin-only Routes */}
-          <Route element={<ProtectedRoute roles={['admin']} />}>
-            <Route element={<MainLayout />}>
-              <Route path="/admin" element={<AdminDashboard />} />
-            </Route>
-          </Route>
+          <Route 
+            path="/users" 
+            element={
+              <ProtectedRoute roles={['admin']}>
+                <Users />
+              </ProtectedRoute>
+            } 
+          />
+          
+          {/* Redirect from home to dashboard if authenticated */}
+          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          
+          {/* 404 Not Found route */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
-      </AuthProvider>
-    </BrowserRouter>
+      </Router>
+    </AuthProvider>
   );
 }
 

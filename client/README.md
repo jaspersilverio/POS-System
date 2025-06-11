@@ -1,54 +1,119 @@
-# React + TypeScript + Vite
+# Dripline POS System
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A comprehensive Point-of-Sale (POS) system designed for clothing stores, featuring inventory management, sales tracking, and customer feedback collection.
 
-Currently, two official plugins are available:
+## Project Structure
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### Backend (Laravel/PHP)
+- **Authentication**: Secure login/register with Sanctum token authentication
+- **Role Management**: Three user roles (admin, manager, cashier) with appropriate permissions
+- **Products & Inventory**: Product management with stock tracking and low stock alerts
+- **Transactions**: Sales processing with receipt generation and optional discount application
+- **Feedback**: Post-transaction customer feedback collection and analysis
 
-## Expanding the ESLint configuration
+### Frontend (React/TypeScript)
+- **Authentication**: Secure login/register forms with validation
+- **Dashboard**: Overview of key metrics and recent activity
+- **Products**: Product catalog browsing and management
+- **Inventory**: Stock level tracking and management
+- **Transactions**: Sales processing interface
+- **Reports**: Sales data visualization and feedback analysis
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+## Setup Instructions
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+### MySQL Setup
+1. Download and Install Docker Desktop
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+2. Start Docker Desktop and open a terminal running this command (change [YOUR_PASSWORD] and save it in a secure place):
+   ```
+   docker run -d --name dripline-mysql -e MYSQL_ROOT_PASSWORD=[YOUR_PASSWORD] -p 3306:3306 mysql:latest
+   ```
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+### Backend Setup
+1. Navigate to the backend directory:
+   ```
+   cd backend
+   ```
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+2. Install PHP dependencies:
+   ```
+   composer install
+   ```
+
+3. Set up your environment file:
+   ```
+   copy .env.example .env
+   php artisan key:generate
+   ```
+
+4. Configure your database in the .env file:
+   ```
+   DB_CONNECTION=mysql
+   DB_HOST=127.0.0.1
+   DB_PORT=3306
+   DB_DATABASE=dripline_pos
+   DB_USERNAME=root
+   DB_PASSWORD=[YOUR_MYSQL_PASSWORD]
+   ```
+
+5. Run migrations:
+   ```
+   php artisan migrate
+   ```
+
+6. Start the development server:
+   ```
+   php artisan serve
+   ```
+
+### Frontend Setup
+1. Navigate to the frontend directory:
+   ```
+   cd frontend
+   ```
+
+2. Install Node.js dependencies:
+   ```
+   npm install
+   ```
+
+3. Start the development server:
+   ```
+   npm start
+   ```
+
+## Features
+
+### Core Features
+- Product Management/Inventory Management
+- Stock Monitoring with alerts for low stock
+- Statistics and Reports on sales and customer feedback
+- Payment Transaction with Discount options
+- Receipt Printing and Email functionality
+- User Management with Role-Based Access Control
+- Email Receipt with Personalized Content
+- User Authentication with security awareness
+- Post-Transaction Survey for customer feedback
+- Customizable Farewell Messages
+- Data Analysis and Improvement Suggestions
+
+## Development Status
+
+- Backend API: Implemented
+- Frontend Auth: Implemented
+- Dashboard: Basic implementation
+- Products & Inventory: In progress
+- Transactions: In progress
+- Reports & Feedback: In progress
+
+## Next Steps
+
+1. Complete the Products and Inventory management interfaces
+2. Implement the Transaction processing workflow
+3. Develop Feedback collection and reporting
+4. Add Charts and data visualization
+5. Implement Receipt printing and emailing
+
+## License
+
+This project is for demonstration purposes only. 
