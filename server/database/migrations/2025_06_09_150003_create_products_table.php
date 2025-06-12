@@ -18,7 +18,7 @@ return new class extends Migration
             $table->decimal('price', 10, 2);
             $table->string('sku')->unique();
             $table->string('category');
-            $table->string('image_url')->nullable();
+            $table->string('image')->nullable();
             $table->boolean('active')->default(true);
             $table->timestamps();
         });

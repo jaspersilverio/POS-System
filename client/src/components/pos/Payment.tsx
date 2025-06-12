@@ -156,7 +156,7 @@ const Payment: React.FC<PaymentProps> = ({
   const formatPrice = (price: number): string => {
     // Ensure price is a number
     const numPrice = Number(price);
-    return isNaN(numPrice) ? "$0.00" : `$${numPrice.toFixed(2)}`;
+    return isNaN(numPrice) ? "₱0.00" : `₱${numPrice.toFixed(2)}`;
   };
 
   // Render payment complete screen
@@ -278,7 +278,7 @@ const Payment: React.FC<PaymentProps> = ({
                 Amount Paid
               </label>
               <div className="flex rounded-md shadow-sm">
-                <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500">$</span>
+                <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500">₱</span>
                 <input
                   id="amountPaid"
                   type="number"

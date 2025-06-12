@@ -48,7 +48,7 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
-    
+
     /**
      * Check if user has a specific role
      *
@@ -59,7 +59,7 @@ class User extends Authenticatable
     {
         return $this->role === $role;
     }
-    
+
     /**
      * Check if user is an admin
      *
@@ -69,7 +69,7 @@ class User extends Authenticatable
     {
         return $this->hasRole('admin');
     }
-    
+
     /**
      * Check if user is a manager
      *
@@ -79,7 +79,7 @@ class User extends Authenticatable
     {
         return $this->hasRole('manager');
     }
-    
+
     /**
      * Check if user is a cashier
      *
@@ -89,7 +89,7 @@ class User extends Authenticatable
     {
         return $this->hasRole('cashier');
     }
-    
+
     /**
      * Get the transactions processed by this user.
      */

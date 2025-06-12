@@ -74,9 +74,9 @@ const Dashboard: React.FC = () => {
     // Convert to number and check if valid
     const numPrice = typeof price === 'string' ? parseFloat(price) : Number(price);
     if (numPrice === null || numPrice === undefined || isNaN(numPrice)) {
-      return '$0.00';
+      return '₱0.00';
     }
-    return `$${numPrice.toFixed(2)}`;
+    return `₱${numPrice.toFixed(2)}`;
   };
   
   // Format chart data

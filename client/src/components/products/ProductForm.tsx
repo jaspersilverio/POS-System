@@ -30,6 +30,8 @@ const ProductForm: React.FC<ProductFormProps> = ({
       min_stock_level: 10
     }
   );
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   
   useEffect(() => {
     // If editing and no initial data is provided, fetch the product data
@@ -50,6 +52,10 @@ const ProductForm: React.FC<ProductFormProps> = ({
             quantity: product.inventory?.quantity || 0,
             min_stock_level: product.inventory?.min_stock_level || 10
           });
+          
+          if (product.image_url) {
+            setImagePreview(product.image_url);
+          }
           
           setError(null);
         } catch (err) {
@@ -86,16 +92,41 @@ const ProductForm: React.FC<ProductFormProps> = ({
     }
   };
   
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result as string);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setError(null);
     
     try {
+      const data = new FormData();
+      data.append('name', formData.name);
+      data.append('description', formData.description);
+      data.append('price', String(formData.price));
+      data.append('sku', formData.sku);
+      data.append('category', formData.category);
+      data.append('active', formData.active ? '1' : '0');
+      data.append('quantity', String(formData.quantity));
+      data.append('min_stock_level', String(formData.min_stock_level));
+      if (imageFile) {
+        data.append('image', imageFile);
+      }
+
       if (isEditing && productId) {
-        await productService.updateProduct(productId, formData);
+        await productService.updateProduct(productId, data);
       } else {
-        await productService.createProduct(formData);
+        await productService.createProduct(data);
       }
       navigate('/products');
     } catch (err) {
@@ -115,7 +146,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
       )}
       
       <div className="bg-white shadow-md rounded-lg p-6">
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} encType="multipart/form-data">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="col-span-1">
               <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
@@ -155,7 +186,7 @@ const ProductForm: React.FC<ProductFormProps> = ({
                 Price*
               </label>
               <div className="flex rounded-md shadow-sm">
-                <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500">$</span>
+                <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500">₱</span>
                 <input
                   className="shadow appearance-none border rounded-r-md w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
                   id="price"
@@ -203,18 +234,29 @@ const ProductForm: React.FC<ProductFormProps> = ({
             </div>
             
             <div className="col-span-2">
-              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="image_url">
-                Image URL
+              <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="image">
+                Product Image
               </label>
+              {imagePreview && (
+                <div className="mb-4">
+                  <img
+                    src={imagePreview}
+                    alt="Product preview"
+                    className="h-32 w-32 object-cover rounded"
+                  />
+                </div>
+              )}
               <input
                 className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                id="image_url"
-                type="url"
-                name="image_url"
-                value={formData.image_url}
-                onChange={handleChange}
-                placeholder="Enter image URL"
+                id="image"
+                type="file"
+                name="image"
+                accept="image/*"
+                onChange={handleImageChange}
               />
+              <p className="text-sm text-gray-500 mt-1">
+                Accepted formats: JPEG, PNG, JPG, GIF, SVG. Max size: 2MB
+              </p>
             </div>
             
             <div className="col-span-1">

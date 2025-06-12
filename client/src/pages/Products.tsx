@@ -46,7 +46,7 @@ const Products: React.FC = () => {
   // Format price safely
   const formatPrice = (price: any): string => {
     const numPrice = Number(price);
-    return isNaN(numPrice) ? `$${price}` : `$${numPrice.toFixed(2)}`;
+    return isNaN(numPrice) ? `₱${price}` : `₱${numPrice.toFixed(2)}`;
   };
   
   if (loading) return (

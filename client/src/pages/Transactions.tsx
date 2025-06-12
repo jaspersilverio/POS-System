@@ -51,7 +51,7 @@ const Transactions: React.FC = () => {
   const formatPrice = (price: any): string => {
     // Ensure price is a number
     const numPrice = Number(price);
-    return isNaN(numPrice) ? "$0.00" : `$${numPrice.toFixed(2)}`;
+    return isNaN(numPrice) ? "₱0.00" : `₱${numPrice.toFixed(2)}`;
   };
   
   // Format date

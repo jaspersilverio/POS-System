@@ -7,6 +7,8 @@ use App\Models\Product;
 use App\Models\Inventory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 
 class ProductController extends Controller
 {
@@ -16,7 +18,7 @@ class ProductController extends Controller
     public function index()
     {
         $products = Product::with('inventory')->get();
-        
+
         return response()->json([
             'products' => $products
         ]);
@@ -29,25 +31,25 @@ class ProductController extends Controller
     {
         // To prevent header issues, make sure nothing is output before this point
         ob_start();
-        
+
         try {
             // Log the incoming request for debugging
-            \Log::info('Product creation request:', $request->all());
-            
+            Log::info('Product creation request:', $request->all());
+
             $validator = Validator::make($request->all(), [
                 'name' => 'required|string|max:255',
                 'description' => 'nullable|string',
                 'price' => 'required|numeric|min:0',
                 'sku' => 'required|string|unique:products',
                 'category' => 'required|string|max:100',
-                'image_url' => 'nullable|url',
+                'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
                 'active' => 'sometimes|boolean',
                 'quantity' => 'sometimes|integer|min:0',
                 'min_stock_level' => 'sometimes|integer|min:1',
             ]);
 
             if ($validator->fails()) {
-                \Log::warning('Validation failed:', $validator->errors()->toArray());
+                Log::warning('Validation failed:', $validator->errors()->toArray());
                 ob_end_clean();
                 return response()->json([
                     'message' => 'Validation failed',
@@ -61,11 +63,11 @@ class ProductController extends Controller
                 'price' => $request->price,
                 'sku' => $request->sku,
                 'category' => $request->category,
-                'image_url' => $request->image_url,
+                'image' => $request->hasFile('image') ? $request->file('image')->store('products', 'public') : null,
                 'active' => $request->active ?? true,
             ]);
 
-            \Log::info('Product created with ID: ' . $product->id);
+            Log::info('Product created with ID: ' . $product->id);
 
             // Create inventory record if quantity provided
             if ($request->has('quantity')) {
@@ -75,7 +77,7 @@ class ProductController extends Controller
                     'min_stock_level' => $request->min_stock_level ?? 10,
                     'last_restock_date' => now(),
                 ]);
-                \Log::info('Inventory created with ID: ' . $inventory->id);
+                Log::info('Inventory created with ID: ' . $inventory->id);
             }
 
             // Return response and make sure buffer is flushed properly
@@ -83,22 +85,22 @@ class ProductController extends Controller
                 'message' => 'Product created successfully',
                 'product' => $product->load('inventory')
             ], 201);
-            
+
             // Clean output buffer
             ob_end_clean();
-            
+
             return $response;
         } catch (\Exception $e) {
             // Log the error
-            \Log::error('Error creating product: ' . $e->getMessage(), [
+            Log::error('Error creating product: ' . $e->getMessage(), [
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
                 'trace' => $e->getTraceAsString()
             ]);
-            
+
             // Clean output buffer
             ob_end_clean();
-            
+
             return response()->json([
                 'message' => 'An error occurred while creating the product',
                 'error' => $e->getMessage()
@@ -112,7 +114,7 @@ class ProductController extends Controller
     public function show(string $id)
     {
         $product = Product::with('inventory')->findOrFail($id);
-        
+
         return response()->json([
             'product' => $product
         ]);
@@ -124,14 +126,14 @@ class ProductController extends Controller
     public function update(Request $request, string $id)
     {
         $product = Product::findOrFail($id);
-        
+
         $validator = Validator::make($request->all(), [
             'name' => 'sometimes|string|max:255',
             'description' => 'nullable|string',
             'price' => 'sometimes|numeric|min:0',
             'sku' => 'sometimes|string|unique:products,sku,' . $id,
             'category' => 'sometimes|string|max:100',
-            'image_url' => 'nullable|url',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
             'active' => 'sometimes|boolean',
             'quantity' => 'sometimes|integer|min:0',
             'min_stock_level' => 'sometimes|integer|min:1',
@@ -144,25 +146,34 @@ class ProductController extends Controller
             ], 422);
         }
 
-        $product->update($request->only([
-            'name', 'description', 'price', 'sku', 'category', 'image_url', 'active'
-        ]));
+        $updateData = $request->only([
+            'name',
+            'description',
+            'price',
+            'sku',
+            'category',
+            'active'
+        ]);
+        if ($request->hasFile('image')) {
+            $updateData['image'] = $request->file('image')->store('products', 'public');
+        }
+        $product->update($updateData);
 
         // Update inventory if quantity provided
         if ($request->has('quantity') || $request->has('min_stock_level')) {
             $inventory = $product->inventory ?? new Inventory(['product_id' => $product->id]);
-            
+
             if ($request->has('quantity')) {
                 $inventory->quantity = $request->quantity;
                 if ($inventory->wasRecentlyCreated) {
                     $inventory->last_restock_date = now();
                 }
             }
-            
+
             if ($request->has('min_stock_level')) {
                 $inventory->min_stock_level = $request->min_stock_level;
             }
-            
+
             $inventory->save();
         }
 
@@ -179,7 +190,7 @@ class ProductController extends Controller
     {
         $product = Product::findOrFail($id);
         $product->delete();
-        
+
         return response()->json([
             'message' => 'Product deleted successfully'
         ]);

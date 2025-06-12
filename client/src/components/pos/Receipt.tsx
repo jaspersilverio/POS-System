@@ -75,7 +75,7 @@ const Receipt: React.FC<ReceiptProps> = ({ transactionId, onClose }) => {
   const formatPrice = (price: number): string => {
     // Ensure price is a number
     const numPrice = Number(price);
-    return isNaN(numPrice) ? "$0.00" : `$${numPrice.toFixed(2)}`;
+    return isNaN(numPrice) ? "₱0.00" : `₱${numPrice.toFixed(2)}`;
   };
   
   // Format date
@@ -212,8 +212,8 @@ const Receipt: React.FC<ReceiptProps> = ({ transactionId, onClose }) => {
         <div className="border-b pb-4 mb-4 text-center">
           <h1 className="text-xl font-bold">Dripline POS</h1>
           <p className="text-gray-600">123 Business Street</p>
-          <p className="text-gray-600">Cityville, State 12345</p>
-          <p className="text-gray-600">Tel: (555) 123-4567</p>
+          <p className="text-gray-600">Roxas City, Capiz</p>
+          <p className="text-gray-600">Tel: (0917) 123-4567</p>
         </div>
         
         <div className="flex justify-between mb-4">

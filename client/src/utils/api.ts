@@ -44,11 +44,15 @@ class ApiService {
   /**
    * Make a POST request
    */
-  async post<T>(endpoint: string, data: any, token?: string | null): Promise<T> {
+  async post<T>(endpoint: string, data: any, token?: string | null, isFormData = false): Promise<T> {
+    const headers = this.getHeaders(token);
+    if (isFormData) {
+      delete (headers as Record<string, string>)['Content-Type'];
+    }
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       method: 'POST',
-      headers: this.getHeaders(token),
-      body: JSON.stringify(data),
+      headers,
+      body: isFormData ? data : JSON.stringify(data),
     });
     
     if (!response.ok) {
@@ -61,11 +65,15 @@ class ApiService {
   /**
    * Make a PUT request
    */
-  async put<T>(endpoint: string, data: any, token?: string | null): Promise<T> {
+  async put<T>(endpoint: string, data: any, token?: string | null, isFormData = false): Promise<T> {
+    const headers = this.getHeaders(token);
+    if (isFormData) {
+      delete (headers as Record<string, string>)['Content-Type'];
+    }
     const response = await fetch(`${this.baseUrl}${endpoint}`, {
       method: 'PUT',
-      headers: this.getHeaders(token),
-      body: JSON.stringify(data),
+      headers,
+      body: isFormData ? data : JSON.stringify(data),
     });
     
     if (!response.ok) {

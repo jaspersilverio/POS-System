@@ -16,7 +16,7 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(JSON.parse(localStorage.getItem('user') || 'null'));
   const [token, setToken] = useState<string | null>(localStorage.getItem('token'));
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -50,6 +50,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       const data = await response.json();
       setUser(data.user);
+      localStorage.setItem('user', JSON.stringify(data.user));
     } catch (error) {
       console.error('Error fetching user profile:', error);
       setError('Failed to authenticate. Please login again.');
@@ -84,6 +85,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Update state
       setToken(token);
       setUser(user);
+      localStorage.setItem('user', JSON.stringify(user));
     } catch (error) {
       console.error('Login error:', error);
       setError(error instanceof Error ? error.message : 'Login failed');
@@ -116,6 +118,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         localStorage.setItem('token', token);
         setToken(token);
         setUser(user);
+        localStorage.setItem('user', JSON.stringify(user));
       }
     } catch (error) {
       console.error('Registration error:', error);
@@ -142,6 +145,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     localStorage.removeItem('token');
     setToken(null);
     setUser(null);
+    localStorage.removeItem('user');
   };
 
   return (

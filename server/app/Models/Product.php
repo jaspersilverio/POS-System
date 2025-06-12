@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class Product extends Model
 {
     use HasFactory;
-    
+
     /**
      * The attributes that are mass assignable.
      *
@@ -22,10 +22,17 @@ class Product extends Model
         'price',
         'sku',
         'category',
-        'image_url',
+        'image',
         'active'
     ];
-    
+
+    protected $appends = ['image_url'];
+
+    public function getImageUrlAttribute()
+    {
+        return $this->image ? asset('storage/' . $this->image) : null;
+    }
+
     /**
      * Get the inventory record associated with the product.
      */
@@ -33,7 +40,7 @@ class Product extends Model
     {
         return $this->hasOne(Inventory::class);
     }
-    
+
     /**
      * Get the transaction items for the product.
      */

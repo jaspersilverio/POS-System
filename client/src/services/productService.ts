@@ -28,18 +28,18 @@ class ProductService {
   /**
    * Create a new product
    */
-  async createProduct(productData: ProductFormData): Promise<Product> {
+  async createProduct(productData: FormData): Promise<Product> {
     const token = localStorage.getItem('token');
-    const response = await apiService.post<ProductResponse>('/products', productData, token);
+    const response = await apiService.post<ProductResponse>('/products', productData, token, true);
     return response.product;
   }
 
   /**
    * Update an existing product
    */
-  async updateProduct(id: number, productData: Partial<ProductFormData>): Promise<Product> {
+  async updateProduct(id: number, productData: FormData): Promise<Product> {
     const token = localStorage.getItem('token');
-    const response = await apiService.put<ProductResponse>(`/products/${id}`, productData, token);
+    const response = await apiService.put<ProductResponse>(`/products/${id}`, productData, token, true);
     return response.product;
   }
 

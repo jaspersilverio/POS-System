@@ -11,7 +11,7 @@ const ProductList: React.FC<ProductListProps> = ({ products, onAddToCart }) => {
   const formatPrice = (price: any): string => {
     // Ensure price is a number before calling toFixed
     const numPrice = Number(price);
-    return isNaN(numPrice) ? `$${price}` : `$${numPrice.toFixed(2)}`;
+    return isNaN(numPrice) ? `₱${price}` : `₱${numPrice.toFixed(2)}`;
   };
 
   // Handle product click with price validation
